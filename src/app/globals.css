@@ -1,26 +1,225 @@
 @import "tailwindcss";
 
+/* --------------------------------------------------------------------------
+   blxckt — a private ledger of who you've cut off.
+   Palette: warm ink blacks, aged paper, a vermilion "blocked" signal.
+   -------------------------------------------------------------------------- */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --ink: #0e0b09;
+  --ink-2: #15110d;
+  --ink-3: #1c1611;
+  --ink-4: #241c14;
+  --line: #2e2419;
+  --line-2: #3f3223;
+  --paper: #f3ead9;
+  --paper-dim: #cdc0ac;
+  --muted: #97856d;
+  --signal: #ff4a2b;
+  --signal-2: #ff7c5f;
+  --amber: #e0a33a;
+  --sage: #8bab7f;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-ink-4: var(--ink-4);
+  --color-line: var(--line);
+  --color-line-2: var(--line-2);
+  --color-paper: var(--paper);
+  --color-paper-dim: var(--paper-dim);
+  --color-muted: var(--muted);
+  --color-signal: var(--signal);
+  --color-signal-2: var(--signal-2);
+  --color-amber: var(--amber);
+  --color-sage: var(--sage);
+
+  --font-display: var(--font-fraunces);
+  --font-sans: var(--font-archivo);
+  --font-mono: var(--font-plex-mono);
+
+  --radius-card: 5px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  * {
+    border-color: var(--line);
+  }
+
+  html {
+    color-scheme: dark;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--ink);
+    color: var(--paper);
+    font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display), Georgia, serif;
+    font-weight: 500;
+    letter-spacing: -0.015em;
+  }
+
+  ::selection {
+    background: var(--signal);
+    color: var(--ink);
+  }
+
+  /* Grain + vignette overlay for depth. */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    pointer-events: none;
+    opacity: 0.05;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 59;
+    pointer-events: none;
+    background: radial-gradient(
+      120% 80% at 50% -10%,
+      transparent 40%,
+      rgba(0, 0, 0, 0.5) 100%
+    );
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  .eyebrow {
+    @apply font-mono text-[11px] uppercase tracking-[0.24em] text-muted;
+  }
+
+  .panel {
+    @apply rounded-card border border-line bg-ink-2;
+  }
+
+  .panel-header {
+    @apply flex flex-wrap items-center justify-between gap-3 border-b border-line px-4 py-3;
+  }
+
+  .label {
+    @apply mb-1.5 block font-mono text-[11px] uppercase tracking-[0.18em] text-muted;
+  }
+
+  .input,
+  .textarea,
+  .select {
+    @apply w-full rounded-card border border-line-2 bg-ink px-3 py-2 text-sm text-paper
+      outline-none transition placeholder:text-muted/50
+      focus:border-signal/70 focus:ring-2 focus:ring-signal/20;
+  }
+
+  .textarea {
+    @apply min-h-28 resize-y leading-relaxed;
+  }
+
+  .select {
+    @apply appearance-none bg-[length:12px] bg-[right_0.75rem_center] bg-no-repeat pr-9;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%2397856d' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  }
+
+  .btn {
+    @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-card border
+      border-line-2 px-3.5 py-2 text-sm font-medium text-paper transition
+      hover:border-paper/25 hover:bg-ink-3
+      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/40
+      disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-primary {
+    @apply border-signal bg-signal text-ink hover:border-signal-2 hover:bg-signal-2;
+  }
+
+  .btn-danger {
+    @apply border-signal/40 text-signal-2 hover:border-signal hover:bg-signal/10;
+  }
+
+  .btn-ghost {
+    @apply border-transparent text-paper-dim hover:border-line-2 hover:text-paper;
+  }
+
+  .btn-sm {
+    @apply px-2.5 py-1.5 text-[13px];
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-line-2 px-2.5 py-1
+      font-mono text-[11px] uppercase tracking-[0.1em] text-paper-dim;
+  }
+
+  .ledger-row {
+    @apply relative flex flex-col gap-2 border-b border-line px-4 py-3.5 transition
+      last:border-b-0 hover:bg-ink-3/60 sm:flex-row sm:items-center sm:gap-4;
+  }
+
+  .link {
+    @apply text-paper underline decoration-line-2 decoration-1 underline-offset-4
+      transition hover:decoration-signal;
+  }
+}
+
+@layer utilities {
+  .reveal {
+    animation: reveal 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  @keyframes reveal {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .strike {
+    position: relative;
+  }
+  .strike::after {
+    content: "";
+    position: absolute;
+    left: -2px;
+    right: -2px;
+    top: 52%;
+    height: 1.5px;
+    background: var(--signal);
+    transform: scaleX(0);
+    transform-origin: left;
+    animation: strike 0.5s 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  @keyframes strike {
+    to {
+      transform: scaleX(1);
+    }
+  }
 }
